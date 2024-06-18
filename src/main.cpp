@@ -2,6 +2,7 @@
 #include <Wire.h>
 #include <FaBo9Axis_MPU9250.h>
 #include <BasicLinearAlgebra.h>
+#include "MPU9250.h"
 
 #include "quaternions.hpp"
 
@@ -12,6 +13,7 @@ struct accelerometer {
 
   // MPU9259 devicw
   FaBo9Axis fabo_9axis;
+  //MPU9250 mpu;
   
   double dTimePrev;
   double dTimeCurr;
@@ -54,11 +56,12 @@ struct accelerometer {
 
 public:
   void initialize() {
+    fabo_9axis = FaBo9Axis(0x68);
     float ax,ay,az;
     float gx,gy,gz;
     float mx,my,mz;
     float temp;
-   
+
     fabo_9axis.readAccelXYZ(&ax,&ay,&az);
     fabo_9axis.readGyroXYZ(&gx,&gy,&gz);
     fabo_9axis.readMagnetXYZ(&mx,&my,&mz);
@@ -330,15 +333,49 @@ public:
 };
 }
 
+
+void scanI2C() {
+    byte error, address;
+    int devicesCount = 0;
+
+    for (address = 1; address < 127; address++) {
+        Wire.beginTransmission(address);
+        error = Wire.endTransmission();
+
+        if (error == 0) {
+            Serial.print("I2C device found at address 0x");
+            if (address < 16) Serial.print("0");
+            Serial.print(address, HEX);
+            Serial.println("  !");
+            devicesCount++;
+        } else if (error == 4) {
+            Serial.print("Unknown error at address 0x");
+            if (address < 16) Serial.print("0");
+            Serial.println(address, HEX);
+        }
+    }
+
+    if (devicesCount == 0) {
+        Serial.println("No I2C devices found\n");
+    } else {
+        Serial.println("done\n");
+    }
+}
+
 aacm::accelerometer ac;
+
+
 
 void setup()
 {
-  Serial.begin(115200);
+  Serial.begin(9600);
   Serial.println("RESET");
   Serial.println();
 
   Serial.println("configuring device.");
+
+  Serial.print("Search Device: ");
+  Serial.println((int) ac.fabo_9axis.searchDevice());
 
   if ( ac.fabo_9axis.begin() ) {
     Serial.println("configured FaBo 9Axis I2C Brick");
@@ -350,8 +387,12 @@ void setup()
   ac.initialize();
 }
 
+unsigned long loop_start;
+const int kPeriod10Hz = 1000;
+
 void loop() 
 {
+  loop_start = millis();
   // carry out measurments
   ac.update();
 
@@ -360,4 +401,7 @@ void loop()
 
   // calculate position
   double dTimeNow = ac.integrate();
+  
+  while ((millis() - loop_start) < kPeriod10Hz) {
+  }  // Limit loop rate to 100 iterations/sec
 }
