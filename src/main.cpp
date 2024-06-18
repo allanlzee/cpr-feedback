@@ -5,7 +5,6 @@
 
 #include "quaternions.hpp"
 
-
 namespace aacm {
 
 struct accelerometer {
@@ -227,7 +226,7 @@ public:
         }
       }
 
-      RMat /= (dTotalWeight*force*force);
+      RMat = RMat / (dTotalWeight*force*force);
 
       BLA::Matrix<4,4> CM;
 
