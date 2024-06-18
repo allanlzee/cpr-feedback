@@ -41,10 +41,6 @@ struct accelerometer {
   int rate_n = 0;
   double rate;
 
-  // int nCount;
-  // double vx, vy, vz;
-  // double vvx, vvy, vvz;
-
   // INTEGRATION
 
   double lambda;
@@ -83,16 +79,6 @@ public:
     qVelAverage = quaternion(0.0, 0.0, 0.0, 0.0);
     qCurrOrient = quaternion(0.0, 0.0, 0.0, 0.0);  
 
-/* //Calibration
-    nCount = 0;
-    vx = 0.0;
-    vy = 0.0;
-    vz = 0.0;
-    vvx = 0.0;
-    vvy = 0.0;
-    vvz = 0.0;
-   */
-
    // Integration
 
    lambda = 1.0; // 1/sec
@@ -119,24 +105,6 @@ public:
     double ddax = dax*1.0063649 - day*0.061666669 - daz*0.095601035 + 0.013704492 + 0.179 ; 
     double dday = dax*0.075509158 + day*0.98790271 - daz*0.017894963 + 0.10671609 + 0.037 ;
     double ddaz = dax*0.0864055 - day*0.044063031 + daz*0.9774707 + 0.020521007 + 0.0164;
-
-/*
-    ax = dax*1.0063649 - day*0.061666669 - daz*0.095601035 + 0.013704492;
-    ay = dax*0.075509158 + day*0.98790271 - daz*0.017894963 + 0.10671609;
-    az = dax*0.0864055 - day*0.044063031 + daz*0.9774707 + 0.020521007;
-*/
-
-    /*
-    BLA::Matrix<3,3> mCalibration = {1.00601190779139,-0.0102187128058640,0.0335777290836605,
-                                     0.0854333897034126,0.902724594438707,0.131758961655363,
-                                     -0.0504916131664662,-0.0286381862563277,0.996059633488924};
-    fabo_9axis.readAccelXYZ(&ax,&ay,&az);
-    BLA::Matrix<3> vAccel = {ax,ay,az};
-    vAccel = (mCalibration)*vAccel;
-    ax = vAccel(0);
-    ay = vAccel(1);
-    az = vAccel(2);
-    */
     
     fabo_9axis.readGyroXYZ(&gx,&gy,&gz);
 
@@ -155,27 +123,8 @@ public:
 
     tau = 0.000001 * (dTimeCurr - dTimePrev);
 
-    double dd = sqrt(ax*ax+ay*ay+az*az);
-    // force += decay*tau*(dd - force);
+    //double dd = sqrt(ax*ax+ay*ay+az*az);
     qAverRot = qAverRot + decay*tau*(qCurrRot - qAverRot);
-
-    // Serial.print("F = ");
-    // Serial.print(dd);
-    // Serial.print("   \t");
-
-    // Calculate calibration matrix
-    /*
-    if ( dTimeCurr > 2000 )
-    {
-      ++nCount;
-      vx = ((nCount-1)*vx+ax)/nCount;
-      vy = ((nCount-1)*vy+ay)/nCount;
-      vz = ((nCount-1)*vz+az)/nCount;      
-    }
-
-    quaternion qtmp(0.0, 1000*vx, 1000*vy, 1000*vz);
-    TestPrint( qtmp, "ACCEL ");
-    */
   }
 
   void TestPrint(const quaternion& q, const char* wht = "Q =")
@@ -190,8 +139,6 @@ public:
     Serial.print(q.c());
     Serial.print("\t");
     Serial.print(q.d());
-    // Serial.print("\t");
-    // Serial.print(qabs(q));
     Serial.println();
   }
 
@@ -203,7 +150,6 @@ public:
   void setRotation(double wx, double wy, double wz)
   {
     qCurrRot = quaternion(0.0,wx,wy,wz);
-    // TestPrint(1000*qCurrRot, "qAnglVel");
   }
 
   quaternion rotation()
@@ -229,8 +175,6 @@ public:
       RMat = RMat / (dTotalWeight*force*force);
 
       BLA::Matrix<4,4> CM;
-
-      
 
       CM(0,0) = RMat(0,0)+RMat(1,1)+RMat(2,2);
       CM(0,1) = -RMat(1,2)+RMat(2,1);
@@ -263,20 +207,6 @@ public:
       // Solve eigenvalue problem
       quaternion qq = qPrevOrient;
 
-/*
-      Serial.print("CM \n");
-      for(int i=0; i<4; ++i)
-      {
-      for(int j=0; j<4; ++j){
-        Serial.print(CM(i,j));
-        Serial.print("\t");
-      }
-      Serial.print("\n");
-      }
-*/
-       
-
-      
       int nIter = 8;
       double dnorm;
       for(int ii=0; ii<nIter; ++ii)
@@ -290,21 +220,13 @@ public:
 
         qres = qq + 0.4*(qres - wGyro*qAnglVel);
 
-        // TestPrint(qq);
-        // TestPrint(qres);
         double dnorm = qabs(qres);
         qq = qres/dnorm;
-        // TestPrint(qq);
-        // Serial.print ("EV = ");
-        // Serial.print(dnorm);
-        // Serial.print ("\n");   
       }
 
 
       qCurrOrient = qq;
 
-
-      //TEST
       if ( false )
       {
          
@@ -317,7 +239,6 @@ public:
           TestPrint( qdiff );
       }
 
-      
       return qCurrOrient;
   }
 
@@ -329,20 +250,11 @@ public:
     quaternion qTrueAccel = qCurrOrient.conj() * qCurrAccel * (qCurrOrient);
     
     qTrueAccel = qTrueAccel - quaternion(0.0, 0.0, 0.0, 1.0);
-    // TestPrint(1000*qTrueAccel, "Accel");
 
     static double dFF4 = 0.5;
     qaver = (1 - dFF4*tau)*qaver + dFF4*tau*qTrueAccel;
     qTrueAccel = qTrueAccel - qaver;
-    // qTrueAccel = (1.0 - 0.4*tau)*qTrueAccel;
-    
-    // quaternion qshift=qCurrOrient*quaternion(0.0, 0.0, 0.0, qaver.d())*conj(qCurrOrient);
 
-    // const double dFF2 = 0.1;
-    // qVelAverage = (1 - dFF2*tau)*qVelAverage +  dFF2*tau*qVel;
-
-    // qVel = qVel + tau*qTrueAccel;
-    // qPos = qPos + tau*(qVel-qVelAverage);
     quaternion qPosNN = 2*qPos - qPosPP; 
     qPosNN = qPosNN + (tau*tau)*qTrueAccel;
     qPosPP = qPos;
@@ -366,17 +278,6 @@ public:
     qPos = (1.0 - 1.01*dFF7 *tau)*qPos;
     qPosPP = (1.0 - dFF7 *tau)*qPosPP;
 
-
-    /* static double am_peak(0.0);
-    if ( qPos.d() > am_peak )
-    {
-      am_peak = qPos.d();
-    }
-
-    diff = am_peak - qPos.d();
-    am_peak *= (1-0.2*tau);*/
- 
-
     if (posPrev[2] < posPrev[1] && posPrev[1] < posPrev[0] && qPos.d() > posPrev[0]) {
       peak_prev = peak;
       peak = qPos.d();
@@ -399,24 +300,6 @@ public:
       //Serial.println(freeMemory());
       motor_count = 0;
     }
-    /* 
-    Serial.print((9820.0) * peak);
-    Serial.print("\t");
-    Serial.print((9820.0) * peak_prev);
-    Serial.print("\t");
-    Serial.print((9820.0) * (diff + 1.2 * (peak_prev - peak)));
-    Serial.print("\t");
-    Serial.print(50.0);
-    Serial.println();
-    */
-    
-    // quaternion qVelNext = qVel + tau*qTrueAccel;
-    // quaternion qPosNext = qPos + 0.5*tau*(qVel + qVelNext);
-    // qPos = qPos + tau*qVelAverage;
-
-    
-    // qVel = qVelNext;
-    // qPos = qPosNext;
 
     rate_n = rate_n + 1;
     if (9820 * diff > 40  && rate_n > 20) { // < -4.0
@@ -442,13 +325,9 @@ public:
 
     dt += tau;
 
-    // What units are tau
-    
     return dt;
   }
-  
 };
-
 }
 
 aacm::accelerometer ac;
@@ -456,13 +335,10 @@ aacm::accelerometer ac;
 void setup()
 {
   Serial.begin(115200);
-  // Serial.begin(1000000);
   Serial.println("RESET");
   Serial.println();
 
   Serial.println("configuring device.");
-
-  //AM: fabo_9axis.dumpConfig();
 
   if ( ac.fabo_9axis.begin() ) {
     Serial.println("configured FaBo 9Axis I2C Brick");
@@ -477,15 +353,11 @@ void setup()
 void loop() 
 {
   // carry out measurments
-
   ac.update();
 
   // update orientation
-
   ac.qCurrOrient = ac.rotation();
 
-
   // calculate position
-
   double dTimeNow = ac.integrate();
 }

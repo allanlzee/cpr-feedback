@@ -32,23 +32,6 @@ struct quaternion {
             return dz;
         }
 
-        // Setters
-        void setA(double w) {
-            aw = w; 
-        }
-
-        void setB(double x) {
-            bx = x; 
-        }
-
-        void setC(double y) {
-            cy = y;
-        }
-
-        void setD(double z) {
-            dz = z; 
-        }
-
         // Operator + to add two quaternions.
         quaternion operator+(quaternion const& q) const 
         {
