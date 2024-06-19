@@ -385,14 +385,31 @@ void setup()
   }    
   
   ac.initialize();
+
+  Serial.println("AX,AY,AZ"); 
 }
 
 unsigned long loop_start;
-const int kPeriod10Hz = 1000;
+const int kPeriod10Hz = 10;
 
 void loop() 
 {
   loop_start = millis();
+
+  float ax = 0; 
+  float ay = 0; 
+  float az = 0;
+  ac.fabo_9axis.readAccelXYZ(&ax, &ay, &az); 
+
+  Serial.print(millis()); 
+  Serial.print(",");
+  Serial.print(ax);
+  Serial.print(",");
+  Serial.print(ay); 
+  Serial.print(",");
+  Serial.println(az); 
+
+  /*
   // carry out measurments
   ac.update();
 
@@ -401,6 +418,7 @@ void loop()
 
   // calculate position
   double dTimeNow = ac.integrate();
+  */
   
   while ((millis() - loop_start) < kPeriod10Hz) {
   }  // Limit loop rate to 100 iterations/sec
