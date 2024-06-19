@@ -3,7 +3,9 @@ import pandas as pd
 import os
 from datetime import datetime
 
-df = pd.read_csv("C:\\Users\\allan\\Documents\\cpr-feedback\\lib\\testing.csv")
+name = input("Name of Participant: ").lower()
+
+df = pd.read_csv("C:\\Users\\allan\\Documents\\cpr-feedback\\lib\\testing-{}.csv".format(name))
 
 plt.figure(figsize=(10, 6))
 
@@ -27,7 +29,7 @@ for filename in os.listdir(output_directory):
         if 'm{}-d{}-v'.format(datetime.now().month, datetime.now().day) in filename:
             graph_number += 1 
 
-output_path = os.path.join(output_directory, 'm{}-d{}-v{}.png'.format(datetime.now().month, datetime.now().day, graph_number))
+output_path = os.path.join(output_directory, 'm{}-d{}-v{}-{}.png'.format(datetime.now().month, datetime.now().day, graph_number, name))
 plt.savefig(output_path)
 
 plt.show()
