@@ -3,6 +3,7 @@ import pandas as pd
 import os
 from datetime import datetime
 
+# Take data from Serial Monitor (need a better way to export data from MCU to CSV file)
 name = input("Name of Participant: ").lower()
 
 df = pd.read_csv("C:\\Users\\allan\\Documents\\cpr-feedback\\lib\\testing-{}.csv".format(name))
