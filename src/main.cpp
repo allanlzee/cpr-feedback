@@ -233,7 +233,7 @@ public:
       if ( false )
       {
          
-          quaternion qr = qCurrOrient.conj()*qCurrAccel*(qCurrOrient);
+          quaternion qr = conj(qCurrOrient)*qCurrAccel*(qCurrOrient);
           quaternion qf(0, 0, 0, force);
 
           quaternion qdiff = qr - qf;
@@ -250,7 +250,7 @@ public:
     static double dt(0.0);
     static quaternion qaver(0.0, 0.00022, 0.00007, -0.0039);
 
-    quaternion qTrueAccel = qCurrOrient.conj() * qCurrAccel * (qCurrOrient);
+    quaternion qTrueAccel = conj(qCurrOrient) * qCurrAccel * (qCurrOrient);
     
     qTrueAccel = qTrueAccel - quaternion(0.0, 0.0, 0.0, 1.0);
 
@@ -313,9 +313,10 @@ public:
         rate_n = 0;
     }
     rate = ((t_prev_trough[3] - t_prev_trough[0]) / 3) / 1000;
-    // Serial.println(rate);
-    Serial.println(9820 * diff);
-    Serial.println(millis());
+    Serial.println(rate);
+    
+    //Serial.println(9820 * diff);
+    //Serial.println(millis());
     if (rate > 0.63) {
       Serial.println("Too slow");
     }
@@ -325,6 +326,7 @@ public:
     else {
       Serial.println("Good");
     }
+    
 
     dt += tau;
 
@@ -363,8 +365,6 @@ void scanI2C() {
 }
 
 aacm::accelerometer ac;
-
-
 
 void setup()
 {
