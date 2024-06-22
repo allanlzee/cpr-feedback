@@ -43,6 +43,16 @@ struct accelerometer {
   int rate_n = 0;
   double rate;
 
+  /*
+  double pos_prev_filtered[100];
+  double times[100];
+  double pos_prev_raw[2] = {0, 0};
+  double prev_peak[3] = {0, 0, 0};
+  
+  int pos_prev_count = 0;
+  int count_times = 0;
+  */
+
   // INTEGRATION
 
   double lambda;
@@ -307,6 +317,7 @@ public:
       motor_count = 0;
     }
 
+    
     rate_n = rate_n + 1;
     if (9820 * diff > 30  && rate_n > 20) { // < -4.0
         t_prev_trough[0] = t_prev_trough[1];
@@ -318,6 +329,28 @@ public:
     rate = ((t_prev_trough[3] - t_prev_trough[0]) / 3) / 1000;
     Serial.print(","); 
     Serial.println(rate);
+
+    /*
+    for(int i = 0; i++; i < 99) {
+      pos_prev_filtered[i] = pos_prev_filtered[i + 1];
+      times[i] = times[i+1];
+    }
+    pos_prev_filtered[99] = (pos_prev_raw[0] + pos_prev_raw[1] + diff);
+    times[99] = millis();
+    pos_prev_raw[0] = pos_prev_raw[1];
+    pos_prev_raw[1] = diff;
+    for(int i = 98; i--; i > 0) {
+      if(pos_prev_filtered[i] > pos_prev_filtered[i+1] && pos_prev_filtered[i] > pos_prev_filtered[i-1] && count_times < 3 && pos_prev_filtered[i] > 30){
+        prev_peak[count_times] = times[i];
+        count_times++;
+      }
+    }
+    rate = (prev_peak[0] - prev_peak[2]) / 2 / 1000;
+  
+    count_times = 0;
+    Serial.print(","); 
+    Serial.println(rate);
+    */
     
     //Serial.println(9820 * diff);
     //Serial.println(millis());
@@ -374,6 +407,13 @@ aacm::accelerometer ac;
 void setup()
 {
   Serial.begin(9600);
+
+  /*
+  for(int i =0; i++; i<100){
+    ac.times[i] = 0;
+    ac.pos_prev_filtered[i] = 0;
+  }*/
+
   Serial.println("RESET");
   Serial.println();
 
@@ -390,8 +430,6 @@ void setup()
   }    
   
   ac.initialize();
-
-  Serial.println("AX,AY,AZ"); 
 }
 
 unsigned long loop_start;

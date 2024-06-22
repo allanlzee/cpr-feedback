@@ -13,7 +13,9 @@ def main():
         print(f"Error opening serial port: \n{e}")
         return
 
-    output_directory = "C:\\Users\\allan\\Documents\\cpr-feedback\\lib\\testing_data"
+    output_directory = "C:\\Users\\allan\\Documents\\cpr-feedback\\lib\\testing_data\\m{}-d{}-y{}".format(
+        datetime.now().month, datetime.now().day, datetime.now().year
+    )
 
     name = input("Name of Participant: ").lower()
     graph_number = 1
@@ -29,14 +31,15 @@ def main():
     try:
         with open(csv_file, 'w', newline='') as file:
             writer = csv.writer(file)
-            writer.writerow(['Timestamp', 'Data'])
+            writer.writerow(['TIME','AX', 'AY', 'AZ', 'POS', 'RATE'])
 
             while True:
                 try:
                     line = ser.readline().decode().strip()
+                    print(line)
                     if line:
-                        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                        writer.writerow([timestamp, line])
+                        values = line.split(',')
+                        writer.writerow(values)
                 except KeyboardInterrupt:
                     print("Interrupted by user. Exiting...")
                     break

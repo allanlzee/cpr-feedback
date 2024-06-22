@@ -7,7 +7,10 @@ from datetime import datetime
 name = input("Name of Participant: ").lower()
 version = input("Version: ")
 
-df = pd.read_csv("C:\\Users\\allan\\Documents\\cpr-feedback\\lib\\testing_data\\m6-d22-v{}-{}.csv".format(version, name))
+csv_path = "C:\\Users\\allan\\Documents\\cpr-feedback\\lib\\testing_data\\m{}-d{}-y{}\\m6-d22-v{}-{}.csv".format(datetime.now().month, datetime.now().day, datetime.now().year, version, name)
+
+
+df = pd.read_csv(csv_path)
 
 plt.figure(figsize=(10, 6))
 
