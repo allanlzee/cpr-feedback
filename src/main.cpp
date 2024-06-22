@@ -286,15 +286,18 @@ public:
       peak = qPos.d();
     }
     diff = peak - qPos.d();
-    diff = 1.2 * diff;
+    diff = 1.0 * diff;
     posPrev[2] = posPrev[1];
     posPrev[1] = posPrev[0];
     posPrev[0] = qPos.d();
-    // Serial.println(9820 * diff);
+    //Serial.print("QPOS: ");
+    Serial.print(",");
+    Serial.print(9820 * diff);
+    //Serial.println(9820 * diff); // gravity 
 
     if (9820 * diff > 50) {
-      // digitalWrite(motorPin, HIGH);
-      // Serial.println(9820 * diff);
+      digitalWrite(motorPin, HIGH);
+      //Serial.println(9820 * diff);
       motor_count = 0;
     }
     motor_count = motor_count + 1;
@@ -305,7 +308,7 @@ public:
     }
 
     rate_n = rate_n + 1;
-    if (9820 * diff > 40  && rate_n > 20) { // < -4.0
+    if (9820 * diff > 30  && rate_n > 20) { // < -4.0
         t_prev_trough[0] = t_prev_trough[1];
         t_prev_trough[1] = t_prev_trough[2];
         t_prev_trough[2] = t_prev_trough[3];
@@ -313,10 +316,12 @@ public:
         rate_n = 0;
     }
     rate = ((t_prev_trough[3] - t_prev_trough[0]) / 3) / 1000;
+    Serial.print(","); 
     Serial.println(rate);
     
     //Serial.println(9820 * diff);
     //Serial.println(millis());
+    /*
     if (rate > 0.63) {
       Serial.println("Too slow");
     }
@@ -326,7 +331,7 @@ public:
     else {
       Serial.println("Good");
     }
-    
+    */
 
     dt += tau;
 
@@ -407,9 +412,8 @@ void loop()
   Serial.print(",");
   Serial.print(ay); 
   Serial.print(",");
-  Serial.println(az); 
-
-  /*
+  Serial.print(az); 
+  
   // carry out measurments
   ac.update();
 
@@ -418,8 +422,8 @@ void loop()
 
   // calculate position
   double dTimeNow = ac.integrate();
-  */
   
-  while ((millis() - loop_start) < kPeriod10Hz) {
-  }  // Limit loop rate to 100 iterations/sec
+  
+  /*while ((millis() - loop_start) < kPeriod10Hz) {
+  }  // Limit loop rate to 100 iterations/sec*/
 }
