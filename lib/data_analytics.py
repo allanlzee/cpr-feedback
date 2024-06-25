@@ -51,22 +51,34 @@ axs[0, 0].set_ylabel('Acceleration (m/s)')
 axs[0, 0].legend()
 axs[0, 0].set_title('Acceleration')
 
-# Position
-axs[0, 1].plot(df.index, df['POS'], label='Position')
+# Roll, Pitch, Yaw
+axs[0, 1].plot(df.index, df['GX'], label='Roll (X)')
+axs[0, 1].plot(df.index, df['GY'], label='Pitch (Y)')
+axs[0, 1].plot(df.index, df['GZ'], label='Yaw (Z)')
 axs[0, 1].grid(True)
 axs[0, 1].set_xlabel('Time (ms)')
-axs[0, 1].set_ylabel('Position (mm)')
+axs[0, 1].set_ylabel('Angle (Degrees)')
 axs[0, 1].legend()
-axs[0, 1].set_title('Position')
+axs[0, 1].set_title('Gyroscope (Rotation)')
+
+# Position
+axs[1, 1].plot(df.index, df['POS'], label='Position')
+axs[1, 1].grid(True)
+axs[1, 1].set_xlabel('Time (ms)')
+axs[1, 1].set_ylabel('Position (mm)')
+axs[1, 1].legend()
+axs[1, 1].set_title('Compression Depth')
 
 # Rate
 # 1 = 100 cycles/min, 1.2 = 120 cycles/min
 axs[1, 0].plot(df.index, df['RATE'], label='Rate') 
+axs[1, 0].axhline(y=1.0, color='r', linestyle='--', label='Upper Bounds')
+axs[1, 0].axhline(y=1.2, color='g', linestyle='--', label='Lower Bounds')
 axs[1, 0].grid(True)
 axs[1, 0].set_xlabel('Time (ms)')
 axs[1, 0].set_ylabel('Rate Factor')
 axs[1, 0].legend()
-axs[1, 0].set_title('Rate')
+axs[1, 0].set_title('Compression Rate')
 
 fig.suptitle(csv_path, fontsize=16)
 plt.grid(True)
@@ -98,5 +110,7 @@ plt.savefig(output_path)
 # Start the tkinter main loop. 
 button = tk.Button(root, text="Close", command=close_window)
 button.pack()
+
+root.protocol("WM_DELETE_WINDOW", close_window)
 
 root.mainloop()

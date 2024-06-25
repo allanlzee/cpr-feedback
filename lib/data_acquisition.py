@@ -37,7 +37,7 @@ def main():
     try:
         with open(csv_file, 'w', newline='') as file:
             writer = csv.writer(file)
-            writer.writerow(['TIME','AX', 'AY', 'AZ', 'POS', 'RATE'])
+            writer.writerow(['TIME','AX', 'AY', 'AZ', 'GX', 'GY', 'GZ', 'POS', 'RATE'])
 
             while True:
                 try:

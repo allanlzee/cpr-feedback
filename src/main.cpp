@@ -43,15 +43,15 @@ struct accelerometer {
   int rate_n = 0;
   double rate;
 
-  // Peak
-  double pos_prev_filtered[60];
-  double times[60];
+  /*
+  double pos_prev_filtered[100];
+  double times[100];
   double pos_prev_raw[2] = {0, 0};
   double prev_peak[3] = {0, 0, 0};
   
   int pos_prev_count = 0;
   int count_times = 0;
-
+  */
 
   // INTEGRATION
 
@@ -301,9 +301,7 @@ public:
     posPrev[1] = posPrev[0];
     posPrev[0] = qPos.d();
     //Serial.print("QPOS: ");
-    Serial.print(",");
-    Serial.print(9820 * diff);
-    //Serial.println(9820 * diff); // gravity 
+    Serial.print(9820 * diff); // gravity 
 
     if (9820 * diff > 50) {
       digitalWrite(motorPin, HIGH);
@@ -317,9 +315,9 @@ public:
       motor_count = 0;
     }
 
-    /*
+    
     rate_n = rate_n + 1;
-    if (9820 * diff > 30  && rate_n > 20) { // < -4.0
+    if (9820 * diff > 30  && rate_n > 15) { // < -4.0
         t_prev_trough[0] = t_prev_trough[1];
         t_prev_trough[1] = t_prev_trough[2];
         t_prev_trough[2] = t_prev_trough[3];
@@ -329,43 +327,44 @@ public:
     rate = ((t_prev_trough[3] - t_prev_trough[0]) / 3) / 1000;
     Serial.print(","); 
     Serial.println(rate);
-    */
 
-    for(int i = 0; i++; i < 59) {
+    /*
+    for(int i = 0; i++; i < 99) {
       pos_prev_filtered[i] = pos_prev_filtered[i + 1];
       times[i] = times[i+1];
     }
-    pos_prev_filtered[59] = (pos_prev_raw[0] + pos_prev_raw[1] + diff);
-    times[59] = millis();
+    pos_prev_filtered[99] = (pos_prev_raw[0] + pos_prev_raw[1] + diff);
+    times[99] = millis();
     pos_prev_raw[0] = pos_prev_raw[1];
     pos_prev_raw[1] = diff;
-    for(int i = 59; i--; i > 0) {
-      if(pos_prev_filtered[i] > pos_prev_filtered[i+1] && pos_prev_filtered[i] > pos_prev_filtered[i-1] && count_times < 3){
+    for(int i = 98; i--; i > 0) {
+      if(pos_prev_filtered[i] > pos_prev_filtered[i+1] && pos_prev_filtered[i] > pos_prev_filtered[i-1] && count_times < 3 && pos_prev_filtered[i] > 30){
         prev_peak[count_times] = times[i];
         count_times++;
       }
     }
-    //Serial.print("Prev Peak");
-    //Serial.println(pos_prev_filtered[0]);
     rate = (prev_peak[0] - prev_peak[2]) / 2 / 1000;
   
     count_times = 0;
     Serial.print(","); 
     Serial.println(rate);
+    */
     
     //Serial.println(9820 * diff);
     //Serial.println(millis());
-    /*
-    if (rate > 0.63) {
-      Serial.println("Too slow");
+    
+    // Device inaccuracies - set a 0.05 tolerance.
+    // Any drift past is concerning.
+    if (rate < 0.95) {
+      // Serial.println("Too fast");
     }
-    else if (rate < 0.48) {
-      Serial.println("Too fast");
+    else if (rate > 1.25) {
+      // Serial.println("Too slow");
     }
     else {
-      Serial.println("Good");
+      // Serial.println("Good");
     }
-    */
+    
 
     dt += tau;
 
@@ -409,10 +408,11 @@ void setup()
 {
   Serial.begin(9600);
 
-  for(int i =0; i++; i<60){
+  /*
+  for(int i =0; i++; i<100){
     ac.times[i] = 0;
     ac.pos_prev_filtered[i] = 0;
-  }
+  }*/
 
   Serial.println("RESET");
   Serial.println();
@@ -444,13 +444,29 @@ void loop()
   float az = 0;
   ac.fabo_9axis.readAccelXYZ(&ax, &ay, &az); 
 
+  float gx = 0; 
+  float gy = 0; 
+  float gz = 0; 
+  ac.fabo_9axis.readGyroXYZ(&gx, &gy, &gz);
+
   Serial.print(millis()); 
+
+  // Acceleration
   Serial.print(",");
   Serial.print(ax);
   Serial.print(",");
   Serial.print(ay); 
   Serial.print(",");
-  Serial.print(az); 
+  Serial.print(az);
+  Serial.print(",");
+
+  // Gyroscope (Roll, Pitch, Yaw)
+  Serial.print(gx);
+  Serial.print(",");
+  Serial.print(gy); 
+  Serial.print(",");
+  Serial.print(gz);
+  Serial.print(",");
   
   // carry out measurments
   ac.update();
