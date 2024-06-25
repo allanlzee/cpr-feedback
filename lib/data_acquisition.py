@@ -1,5 +1,8 @@
 """Run this file to record data from the Arduino serial monitor.
-This file needs to be run prior to operation of the device."""
+This file needs to be run prior to operation of the device.
+
+Author: Allan Zhou
+"""
 
 import serial
 import csv
@@ -13,9 +16,12 @@ def main():
         print(f"Error opening serial port: \n{e}")
         return
 
+
     output_directory = "C:\\Users\\allan\\Documents\\cpr-feedback\\lib\\testing_data\\m{}-d{}-y{}".format(
         datetime.now().month, datetime.now().day, datetime.now().year
     )
+
+    os.makedirs(output_directory, exist_ok=True)
 
     name = input("Name of Participant: ").lower()
     graph_number = 1

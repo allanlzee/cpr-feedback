@@ -1,34 +1,89 @@
+"""Run this file to analyze data recorded by the Arduino serial monitor. 
+This file needs to be run after a valid CSV file has been generated using 
+data_acquisition.py. 
+
+Author: Allan Zhou
+"""
+
 import matplotlib.pyplot as plt 
 import pandas as pd 
 import os
 from datetime import datetime
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import tkinter as tk
 
-# Take data from Serial Monitor (need a better way to export data from MCU to CSV file)
+# Window functionality.
+def set_window_position(root, x, y):
+    root.update_idletasks()
+    root.geometry(f"+{x}+{y}")
+
+def close_window():
+    root.quit()
+    root.destroy()
+
+# Take data from Serial Monitor (need a better way to export data from MCU to CSV file).
 name = input("Name of Participant: ").lower()
-version = input("Version: ")
+date = input("Today? (Y/N): ")
+csv_path = ""
 
-csv_path = "C:\\Users\\allan\\Documents\\cpr-feedback\\lib\\testing_data\\m{}-d{}-y{}\\m6-d22-v{}-{}.csv".format(datetime.now().month, datetime.now().day, datetime.now().year, version, name)
-
+if date.lower() == 'y':
+    version = input("Version: ")
+    csv_path = "C:\\Users\\allan\\Documents\\cpr-feedback\\lib\\testing_data\\m{}-d{}-y{}\\m{}-d{}-v{}-{}.csv".format(
+        datetime.now().month, datetime.now().day, datetime.now().year,  datetime.now().month, datetime.now().day, version, name)
+else: 
+    month = input("Month: ")
+    day = input("Day: ")
+    version = input("Version: ")
+    csv_path = "C:\\Users\\allan\\Documents\\cpr-feedback\\lib\\testing_data\\m{}-d{}-y{}\\m{}-d{}-v{}-{}.csv".format(
+        month, day, datetime.now().year, month, day, version, name)
 
 df = pd.read_csv(csv_path)
 
-plt.figure(figsize=(10, 6))
+fig, axs = plt.subplots(2, 2, figsize=(12, 8))
 
-plt.plot(df.index, df['AX'], marker='o', label='Acceleration X')
-plt.plot(df.index, df['AY'], marker='o', label='Acceleration Y')
-plt.plot(df.index, df['AZ'], marker='o', label='Acceleration Z')
-#plt.plot(df.index, df['POS'], marker='o', label='POS')
-plt.plot(df.index, df['RATE'], marker='o', label='Rate') 
+# Acceleration
+axs[0, 0].plot(df.index, df['AX'], label='Acceleration X')
+axs[0, 0].plot(df.index, df['AY'], label='Acceleration Y')
+axs[0, 0].plot(df.index, df['AZ'], label='Acceleration Z')
+axs[0, 0].grid(True)
+axs[0, 0].set_xlabel('Time (ms)')
+axs[0, 0].set_ylabel('Acceleration (m/s)')
+axs[0, 0].legend()
+axs[0, 0].set_title('Acceleration')
+
+# Position
+axs[0, 1].plot(df.index, df['POS'], label='Position')
+axs[0, 1].grid(True)
+axs[0, 1].set_xlabel('Time (ms)')
+axs[0, 1].set_ylabel('Position (mm)')
+axs[0, 1].legend()
+axs[0, 1].set_title('Position')
+
+# Rate
 # 1 = 100 cycles/min, 1.2 = 120 cycles/min
+axs[1, 0].plot(df.index, df['RATE'], label='Rate') 
+axs[1, 0].grid(True)
+axs[1, 0].set_xlabel('Time (ms)')
+axs[1, 0].set_ylabel('Rate Factor')
+axs[1, 0].legend()
+axs[1, 0].set_title('Rate')
 
-plt.title("100 Hz Acceleration of MPU9520 (Chest Compressions)")
-plt.xlabel("Time (ms)")
-plt.ylabel("Acceleration (m/s)")
-
-plt.legend() 
+fig.suptitle(csv_path, fontsize=16)
 plt.grid(True)
 
-output_directory = "C:\\Users\\allan\\Documents\\cpr-feedback\\lib\\testing_graphs"
+root = tk.Tk()
+root.title("Matplotlib Plot")
+
+# Set the position of the window (x, y).
+set_window_position(root, 0, 0)
+
+# Embed the Matplotlib figure in the tkinter window.
+canvas = FigureCanvasTkAgg(fig, master=root)
+canvas.draw()
+canvas.get_tk_widget().pack()
+
+output_directory = "C:\\Users\\allan\\Documents\\cpr-feedback\\lib\\testing_graphs\\m{}-d{}-y{}".format(
+        datetime.now().month, datetime.now().day, datetime.now().year)
 os.makedirs(output_directory, exist_ok=True)
 
 graph_number = 1
@@ -40,4 +95,8 @@ for filename in os.listdir(output_directory):
 output_path = os.path.join(output_directory, 'm{}-d{}-v{}-{}.png'.format(datetime.now().month, datetime.now().day, graph_number, name))
 plt.savefig(output_path)
 
-plt.show()
+# Start the tkinter main loop. 
+button = tk.Button(root, text="Close", command=close_window)
+button.pack()
+
+root.mainloop()
