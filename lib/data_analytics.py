@@ -28,13 +28,13 @@ csv_path = ""
 
 if date.lower() == 'y':
     version = input("Version: ")
-    csv_path = "C:\\Users\\allan\\Documents\\cpr-feedback\\lib\\testing_data\\m{}-d{}-y{}\\m{}-d{}-v{}-{}.csv".format(
+    csv_path = "lib\\testing_data\\m{}-d{}-y{}\\m{}-d{}-v{}-{}.csv".format(
         datetime.now().month, datetime.now().day, datetime.now().year,  datetime.now().month, datetime.now().day, version, name)
 else: 
     month = input("Month: ")
     day = input("Day: ")
     version = input("Version: ")
-    csv_path = "C:\\Users\\allan\\Documents\\cpr-feedback\\lib\\testing_data\\m{}-d{}-y{}\\m{}-d{}-v{}-{}.csv".format(
+    csv_path = "lib\\testing_data\\m{}-d{}-y{}\\m{}-d{}-v{}-{}.csv".format(
         month, day, datetime.now().year, month, day, version, name)
 
 df = pd.read_csv(csv_path)

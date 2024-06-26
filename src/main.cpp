@@ -1,10 +1,11 @@
-
 #include <Wire.h>
 #include <FaBo9Axis_MPU9250.h>
 #include <BasicLinearAlgebra.h>
 #include "MPU9250.h"
 
 #include "quaternions.hpp"
+
+#define FEEDBACK_MODE true
 
 namespace aacm {
 
@@ -43,18 +44,7 @@ struct accelerometer {
   int rate_n = 0;
   double rate;
 
-  /*
-  double pos_prev_filtered[100];
-  double times[100];
-  double pos_prev_raw[2] = {0, 0};
-  double prev_peak[3] = {0, 0, 0};
-  
-  int pos_prev_count = 0;
-  int count_times = 0;
-  */
-
   // INTEGRATION
-
   double lambda;
   double omega;
   double I0, I1, I2, I3, I4; 
@@ -93,7 +83,6 @@ public:
     qCurrOrient = quaternion(0.0, 0.0, 0.0, 0.0);  
 
    // Integration
-
    lambda = 1.0; // 1/sec
    omega = 1.0; // 1/sec
    I0 = 0.0;
@@ -272,21 +261,7 @@ public:
     qPosNN = qPosNN + (tau*tau)*qTrueAccel;
     qPosPP = qPos;
     qPos = qPosNN;
-    
-    // TestPrint(1000*qTrueAccel, "Accel");
-    // TestPrint(1000*qaver, "Shift");
-    // TestPrint(1000*qCurrOrient, "Orientation");
-    // TestPrint((9820.0)*qPos, "Position");
-    // TestPrint((9820.0)*qVel, "Velocity");
-    // Serial.println(force);
-    // Serial.println(9820.0*qPos.d());
-    // TestPrint((qCurrRot-qAverRot), "angular_velocity");
-    // Decay
-    // Serial.println(1000*tau);
-    // TestPrint(quaternion(0.0, angl(0), angl(1), angl(2)), "angle");
 
-    // fudge factors
-    // qVel = (1.0 - 2.0*tau)*qVel;
     const double dFF7 = 3.2; // use 4.0
     qPos = (1.0 - 1.01*dFF7 *tau)*qPos;
     qPosPP = (1.0 - dFF7 *tau)*qPosPP;
@@ -300,22 +275,22 @@ public:
     posPrev[2] = posPrev[1];
     posPrev[1] = posPrev[0];
     posPrev[0] = qPos.d();
-    //Serial.print("QPOS: ");
     Serial.print(9820 * diff); // gravity 
+    Serial.print(","); 
 
-    if (9820 * diff > 50) {
-      digitalWrite(motorPin, HIGH);
-      //Serial.println(9820 * diff);
-      motor_count = 0;
-    }
-    motor_count = motor_count + 1;
-    if (motor_count == 10) {
-      digitalWrite(motorPin, LOW);
-      //Serial.println(freeMemory());
-      motor_count = 0;
-    }
-
+    if (FEEDBACK_MODE) {
+      if (9820 * diff > 50) {
+        digitalWrite(motorPin, HIGH);
+        motor_count = 0;
+      }
     
+      motor_count = motor_count + 1;
+      if (motor_count == 4) {
+        digitalWrite(motorPin, LOW);
+        motor_count = 0;
+      }
+    }
+
     rate_n = rate_n + 1;
     if (9820 * diff > 30  && rate_n > 15) { // < -4.0
         t_prev_trough[0] = t_prev_trough[1];
@@ -325,46 +300,20 @@ public:
         rate_n = 0;
     }
     rate = ((t_prev_trough[3] - t_prev_trough[0]) / 3) / 1000;
+    Serial.print(rate);
     Serial.print(","); 
-    Serial.println(rate);
-
-    /*
-    for(int i = 0; i++; i < 99) {
-      pos_prev_filtered[i] = pos_prev_filtered[i + 1];
-      times[i] = times[i+1];
-    }
-    pos_prev_filtered[99] = (pos_prev_raw[0] + pos_prev_raw[1] + diff);
-    times[99] = millis();
-    pos_prev_raw[0] = pos_prev_raw[1];
-    pos_prev_raw[1] = diff;
-    for(int i = 98; i--; i > 0) {
-      if(pos_prev_filtered[i] > pos_prev_filtered[i+1] && pos_prev_filtered[i] > pos_prev_filtered[i-1] && count_times < 3 && pos_prev_filtered[i] > 30){
-        prev_peak[count_times] = times[i];
-        count_times++;
-      }
-    }
-    rate = (prev_peak[0] - prev_peak[2]) / 2 / 1000;
-  
-    count_times = 0;
-    Serial.print(","); 
-    Serial.println(rate);
-    */
-    
-    //Serial.println(9820 * diff);
-    //Serial.println(millis());
     
     // Device inaccuracies - set a 0.05 tolerance.
     // Any drift past is concerning.
     if (rate < 0.95) {
-      // Serial.println("Too fast");
+      Serial.println("F");
     }
     else if (rate > 1.25) {
-      // Serial.println("Too slow");
+      Serial.println("S");
     }
     else {
-      // Serial.println("Good");
+      Serial.println("G");
     }
-    
 
     dt += tau;
 
@@ -407,12 +356,6 @@ aacm::accelerometer ac;
 void setup()
 {
   Serial.begin(9600);
-
-  /*
-  for(int i =0; i++; i<100){
-    ac.times[i] = 0;
-    ac.pos_prev_filtered[i] = 0;
-  }*/
 
   Serial.println("RESET");
   Serial.println();
@@ -476,8 +419,4 @@ void loop()
 
   // calculate position
   double dTimeNow = ac.integrate();
-  
-  
-  /*while ((millis() - loop_start) < kPeriod10Hz) {
-  }  // Limit loop rate to 100 iterations/sec*/
 }
