@@ -279,7 +279,7 @@ public:
     Serial.print(","); 
 
     if (FEEDBACK_MODE) {
-      if (9820 * diff > 50) {
+      if (9820 * diff > 45) {
         digitalWrite(motorPin, HIGH);
         motor_count = 0;
       }
