@@ -279,13 +279,13 @@ public:
     Serial.print(","); 
 
     if (FEEDBACK_MODE) {
-      if (9820 * diff > 45) {
+      if (9820 * diff > 40) {
         digitalWrite(motorPin, HIGH);
         motor_count = 0;
       }
     
       motor_count = motor_count + 1;
-      if (motor_count == 4) {
+      if (motor_count == 3) {
         digitalWrite(motorPin, LOW);
         motor_count = 0;
       }
