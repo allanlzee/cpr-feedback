@@ -1,0 +1,14 @@
+Prestan CPR App Session Summary
+
+Session Date & Time 17/7/24 @ 10:27am
+Manikin:  Black 1
+Guideline: Heart & Stroke 2020
+Cycles: 5
+Student Name: Unnamed
+
+Chest Compression Fraction: 99%
+Compression Rate Accuracy: 3% | 55CPM (avg)
+Compression Depth Accuracy: 98% | 5.363045 cm
+Compression Recoil Accuracy: 100% | 150/150
+
+Hands-off Time (seconds): 1.0
