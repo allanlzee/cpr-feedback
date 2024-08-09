@@ -54,6 +54,8 @@ struct accelerometer {
   double diff = 0.0;
   double peak_prev = 0.0;
 
+  double peakTrack[3] = {0, 0, 0};
+
 public:
   void initialize() {
     fabo_9axis = FaBo9Axis(0x68);
@@ -278,6 +280,10 @@ public:
     Serial.print(9820 * diff); // gravity 
     Serial.print(","); 
 
+    peakTrack[2] = peakTrack[1]; 
+    peakTrack[1] = peakTrack[0];
+    peakTrack[0] = 9820 * diff;
+
     if (FEEDBACK_MODE) {
       if (9820 * diff > 40) {
         digitalWrite(motorPin, HIGH);
@@ -285,30 +291,31 @@ public:
       }
     
       motor_count = motor_count + 1;
-      if (motor_count == 3) {
+      if (motor_count == 2) {
         digitalWrite(motorPin, LOW);
         motor_count = 0;
       }
     }
-
-    rate_n = rate_n + 1;
-    if (9820 * diff > 30  && rate_n > 15) { // < -4.0
+    
+    // Compression rate is based on peaks. 
+    // For 100 bpm, 600 ms/0.6s should be between compressions. 
+    // For 120 bpm, 500 ms/0.5s should be between comrpessions. 
+    if (9820 * diff > 40 && (peakTrack[1] > peakTrack[0] && peakTrack[1] > peakTrack[2])) { // < -4.0
         t_prev_trough[0] = t_prev_trough[1];
         t_prev_trough[1] = t_prev_trough[2];
         t_prev_trough[2] = t_prev_trough[3];
         t_prev_trough[3] = millis();
-        rate_n = 0;
     }
-    rate = ((t_prev_trough[3] - t_prev_trough[0]) / 3) / 1000;
-    Serial.print(rate);
+    rate = (t_prev_trough[3] - t_prev_trough[0]) / 3 / 1000; // s
+    Serial.print(rate); // ms between each pair of compressions.
     Serial.print(","); 
     
-    // Device inaccuracies - set a 0.05 tolerance.
-    // Any drift past is concerning.
-    if (rate < 0.95) {
+    // The rate is the time (in s) between each pair of compressions.
+    // There is a 5 ms tolerance in both ways. 
+    if (rate < 0.45) {
       Serial.println("F");
     }
-    else if (rate > 1.25) {
+    else if (rate > 0.65) {
       Serial.println("S");
     }
     else {

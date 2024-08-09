@@ -9,6 +9,7 @@ import csv
 import os
 from datetime import datetime
 from playsound import playsound
+import time
 
 FEEDBACK_MODE = True
 
@@ -18,7 +19,6 @@ def main():
     except serial.SerialException as e:
         print(f"Error opening serial port: \n{e}")
         return
-
 
     output_directory = "C:\\Users\\allan\\Documents\\cpr-feedback\\lib\\testing_data\\m{}-d{}-y{}".format(
         datetime.now().month, datetime.now().day, datetime.now().year
@@ -44,10 +44,13 @@ def main():
 
             audio_delay = 0
 
+            start_time = time.time()
+            print(start_time)
+
             """Each loop is 1 ms. Play auditory feedback at 2.5 second intervals. 
             audio_delay should have a maximum value of 2500.
             """
-            while True:
+            while time.time() - start_time < 150:
                 try:
                     line = ser.readline().decode().strip()
                     print(line)
@@ -57,7 +60,7 @@ def main():
 
                         # Auditory feedback. 
                         print("AUDIO: " + str(audio_delay))
-                        if audio_delay == 500 and FEEDBACK_MODE: 
+                        if audio_delay == 250 and FEEDBACK_MODE: 
                             match values[-1]:
                                 case 'F': 
                                     playsound("lib\\auditory\\Slower.mp3")
@@ -65,7 +68,7 @@ def main():
                                     playsound("lib\\auditory\\Faster.mp3")
                                 case 'G': 
                                     playsound("lib\\auditory\\Good.mp3")
-                            audio_delay = 250
+                            audio_delay = 0
                         else: 
                             audio_delay += 1
 

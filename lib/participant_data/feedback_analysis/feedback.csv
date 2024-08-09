@@ -1,0 +1,5 @@
+Participant (Anonymized),Chest Compression Fraction,,Compression Rate Accuracy,,Compression Depth Accuracy,,Compression Recoil Accuracy,,Hands-off Time,
+Number,Feedback,No Feedback,Feedback,No Feedback,Feedback,No Feedback,Feedback,No Feedback,Feedback,No Feedback
+3,99%,56%,3%,0%,98%,70%,100%,100%,1.0,1.0
+4,98%,100%,95%,90%,94%,97%,100%,100%,1.0,0.0
+5,,,,,,,,,,

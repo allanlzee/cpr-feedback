@@ -41,6 +41,8 @@ df = pd.read_csv(csv_path)
 
 fig, axs = plt.subplots(2, 2, figsize=(12, 8))
 
+fig.subplots_adjust(left=0.1, bottom=0.1, right=0.9, top=0.9, wspace=0.4, hspace=0.4)
+
 # Acceleration
 axs[0, 0].plot(df.index, df['AX'], label='Acceleration X')
 axs[0, 0].plot(df.index, df['AY'], label='Acceleration Y')
