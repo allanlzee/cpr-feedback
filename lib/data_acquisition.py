@@ -52,7 +52,7 @@ def main():
             """
             while time.time() - start_time < 150:
                 try:
-                    line = ser.readline().decode().strip()
+                    line = ser.readline().decode(errors='ignore').strip()
                     print(line)
                     if line:
                         values = line.split(',')
@@ -60,7 +60,7 @@ def main():
 
                         # Auditory feedback. 
                         print("AUDIO: " + str(audio_delay))
-                        if audio_delay == 250 and FEEDBACK_MODE: 
+                        if audio_delay == 600 and FEEDBACK_MODE: 
                             match values[-1]:
                                 case 'F': 
                                     playsound("lib\\auditory\\Slower.mp3")
@@ -70,7 +70,7 @@ def main():
                                     playsound("lib\\auditory\\Good.mp3")
                             audio_delay = 0
                         else: 
-                            audio_delay += 1
+                            audio_delay += 2
 
 
                 except KeyboardInterrupt:

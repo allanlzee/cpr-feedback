@@ -1,7 +1,4 @@
 TIME,AX,AY,AZ,GX,GY,GZ,POS,RATE,RATE_STATUS
-configuring device.
-Search Device: 1
-configured FaBo 9Axis I2C Brick
 413,-0.18,-0.24,0.98,-9.86,-4.48,-0.72,-0.00,0.00,F
 432,-0.18,-0.23,0.98,-9.90,-4.53,-0.74,-0.01,0.00,F
 487,-0.18,-0.24,0.98,-9.93,-4.52,-0.71,-0.01,0.00,F

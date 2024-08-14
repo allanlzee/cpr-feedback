@@ -40,7 +40,7 @@ struct accelerometer {
   double motor_count = 0;
   int motorPin = 13;
 
-  double t_prev_trough[4] = {0, 0, 0, 0};
+  double t_prev_trough[4] = {0, 500, 1000, 1500};
   int rate_n = 0;
   double rate;
 
@@ -300,7 +300,7 @@ public:
     // Compression rate is based on peaks. 
     // For 100 bpm, 600 ms/0.6s should be between compressions. 
     // For 120 bpm, 500 ms/0.5s should be between comrpessions. 
-    if (9820 * diff > 40 && (peakTrack[1] > peakTrack[0] && peakTrack[1] > peakTrack[2])) { // < -4.0
+    if ((peakTrack[1] > peakTrack[0] && peakTrack[1] > peakTrack[2])) { // < -4.0
         t_prev_trough[0] = t_prev_trough[1];
         t_prev_trough[1] = t_prev_trough[2];
         t_prev_trough[2] = t_prev_trough[3];
@@ -364,22 +364,26 @@ void setup()
 {
   Serial.begin(9600);
 
-  Serial.println("RESET");
-  Serial.println();
+  //Serial.println("RESET");
+  //Serial.println();
 
-  Serial.println("configuring device.");
+  //Serial.println("configuring device.");
 
-  Serial.print("Search Device: ");
+  //Serial.print("Search Device: ");
   Serial.println((int) ac.fabo_9axis.searchDevice());
 
   if ( ac.fabo_9axis.begin() ) {
-    Serial.println("configured FaBo 9Axis I2C Brick");
+    //Serial.println("configured FaBo 9Axis I2C Brick");
   } else {
     Serial.println("device error");
     while(1);
   }    
   
   ac.initialize();
+
+  // To offset first rate spike caused by 0s.
+  ac.t_prev_trough[1] = millis();
+  ac.t_prev_trough[2] = millis();
 }
 
 unsigned long loop_start;

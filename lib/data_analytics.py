@@ -44,9 +44,9 @@ fig, axs = plt.subplots(2, 2, figsize=(12, 8))
 fig.subplots_adjust(left=0.1, bottom=0.1, right=0.9, top=0.9, wspace=0.4, hspace=0.4)
 
 # Acceleration
-axs[0, 0].plot(df.index, df['AX'], label='Acceleration X')
-axs[0, 0].plot(df.index, df['AY'], label='Acceleration Y')
-axs[0, 0].plot(df.index, df['AZ'], label='Acceleration Z')
+axs[0, 0].plot(df['TIME'], df['AX'], label='Acceleration X')
+axs[0, 0].plot(df['TIME'], df['AY'], label='Acceleration Y')
+axs[0, 0].plot(df['TIME'], df['AZ'], label='Acceleration Z')
 axs[0, 0].grid(True)
 axs[0, 0].set_xlabel('Time (ms)')
 axs[0, 0].set_ylabel('Acceleration (m/s)')
@@ -54,9 +54,9 @@ axs[0, 0].legend()
 axs[0, 0].set_title('Acceleration')
 
 # Roll, Pitch, Yaw
-axs[0, 1].plot(df.index, df['GX'], label='Roll (X)')
-axs[0, 1].plot(df.index, df['GY'], label='Pitch (Y)')
-axs[0, 1].plot(df.index, df['GZ'], label='Yaw (Z)')
+axs[0, 1].plot(df['TIME'], df['GX'], label='Roll (X)')
+axs[0, 1].plot(df['TIME'], df['GY'], label='Pitch (Y)')
+axs[0, 1].plot(df['TIME'], df['GZ'], label='Yaw (Z)')
 axs[0, 1].grid(True)
 axs[0, 1].set_xlabel('Time (ms)')
 axs[0, 1].set_ylabel('Angle (Degrees)')
@@ -64,7 +64,7 @@ axs[0, 1].legend()
 axs[0, 1].set_title('Gyroscope (Rotation)')
 
 # Position
-axs[1, 1].plot(df.index, df['POS'], label='Position')
+axs[1, 1].plot(df['TIME'], df['POS'], label='Position')
 axs[1, 1].grid(True)
 axs[1, 1].set_xlabel('Time (ms)')
 axs[1, 1].set_ylabel('Position (mm)')
@@ -73,12 +73,12 @@ axs[1, 1].set_title('Compression Depth')
 
 # Rate
 # 1 = 100 cycles/min, 1.2 = 120 cycles/min
-axs[1, 0].plot(df.index, df['RATE'], label='Rate') 
-axs[1, 0].axhline(y=1.0, color='r', linestyle='--', label='Upper Bounds')
-axs[1, 0].axhline(y=1.2, color='g', linestyle='--', label='Lower Bounds')
+axs[1, 0].plot(df['TIME'], df['RATE'], label='Rate') 
+axs[1, 0].axhline(y=0.6, color='r', linestyle='--', label='Upper Bounds (Slowest)')
+axs[1, 0].axhline(y=0.5, color='g', linestyle='--', label='Lower Bounds (Fastest)')
 axs[1, 0].grid(True)
 axs[1, 0].set_xlabel('Time (ms)')
-axs[1, 0].set_ylabel('Rate Factor')
+axs[1, 0].set_ylabel('Time Between Compressions (s)')
 axs[1, 0].legend()
 axs[1, 0].set_title('Compression Rate')
 
