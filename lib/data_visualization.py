@@ -43,6 +43,20 @@ fig, axs = plt.subplots(2, 2, figsize=(12, 8))
 
 fig.subplots_adjust(left=0.1, bottom=0.1, right=0.9, top=0.9, wspace=0.4, hspace=0.4)
 
+
+# Average Compression Depth, Rate 
+depth_peaks = []
+for i in range(1, len(df['POS']) - 1): 
+    if df['POS'][i] > df['POS'][i - 1] and df['POS'][i] > df['POS'][i + 1]: 
+        depth_peaks.append(df['POS'][i])
+
+print("\n-----------------DATA ANALYTICS-----------------")
+average_depth = sum(depth_peaks) / len(depth_peaks)
+print("Average Depth (mm): {:.2f}".format(average_depth))
+
+average_rate = sum(df['RATE']) / len(df['RATE'])
+print("Average Rate (CPM): {:.2f}".format(60 / average_rate))
+
 # Acceleration
 axs[0, 0].plot(df['TIME'], df['AX'], label='Acceleration X')
 axs[0, 0].plot(df['TIME'], df['AY'], label='Acceleration Y')
